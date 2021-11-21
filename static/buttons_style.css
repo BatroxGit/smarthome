@@ -1,0 +1,497 @@
+body{
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff; 
+}
+
+.headline{
+    margin-top: 50px;
+    text-align: center;
+    font-family: 'Trebuchet MS';
+    font-weight: 700;
+    font-size: 60px;
+    letter-spacing: 8px;
+}
+.headline hr{
+    color:#3498db;
+    width: 750px;
+}
+
+.button_field{
+    float: left;
+    margin-top: 100px;
+    width: 200px;
+}
+.button_field ul{
+    list-style-type:none;
+    margin-left: -30px;
+}
+.btn{
+    /*border:  1px solid #3498db;*/
+    background:#3FA5E0;
+    width: 100%;
+    padding: 20px 40px;
+    cursor: pointer;
+    font-size: 120%;
+    transition: 0.2s;
+    text-align: center;
+    white-space: nowrap;
+    font-family: 'manrope';
+    font-weight: 200;
+    margin-bottom: 5px;
+    border-radius: 3px;
+    border: none;
+    color: white;
+}
+
+.btn:hover{
+    opacity: 0.8;
+}
+.btn_switched{
+    background: #18455f;
+}
+
+.button_splitter{
+    color: #1b567e94;
+    width: 100%;
+}
+
+.strip_settings{
+    display: inline-block;
+    text-align: center;
+    /*border: 1px solid #3498db;*/
+    padding: 270px 100px ;
+    width: 200px;
+    
+    background: white;
+    
+    /*margin-left: 50px;*/
+    position: absolute;
+    left: 250px; 
+    
+    border-radius: 3px;
+    visibility: visible;
+    opacity: 0;
+    transition: all 0.3s;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .4);
+}
+
+.strip_name{
+    font-family: 'Trebuchet MS';
+    margin-top: -250px;
+    font-size: 30px;
+    font-size: 40px;
+}
+.select-box{
+    display: flex;
+    width: 250px;
+    margin-top: -330px;
+    flex-direction: column;
+    font-family: 'Trebuchet MS';
+}
+.strip_settings .option-container{
+    margin-left: -25px;
+    background: #104A6B;
+    color: #fff;
+    max-height: 0;
+    width: 100%;
+    transition: all 0.4s;
+    overflow: hidden;
+    border-radius: 8px;
+    opacity: 0;
+
+    order: 1;
+}
+.select-box .option-container.active{
+    max-height: 200px;
+    /*overflow-y: scroll;*/
+    opacity: 1;
+    z-index: 2;
+}
+.select-box .option-container.active + .selected::after{
+    transform: rotateX(180deg);
+    top: -6px;
+}
+.selected{
+    background: #104A6B;
+    color: #fff;
+    
+    border-radius: 8px;
+    width: 200px;
+    margin-bottom: 8px;
+    position: relative;
+    margin-left: -25px;
+    order: 0;
+}
+.selected::after{
+    content: "";
+    background: url('img/arrow-down.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    height: 100%;
+    width: 32px;
+    right: 10px;
+    top: 5px;
+    transition: all 0.4s;
+}
+.select-box .option, .selected{
+    padding: 8px 24px;
+    cursor: pointer;
+}
+.select-box .option:hover{
+    background: #1d5474;
+}
+.select-box label{
+    cursor: pointer;
+}
+.select-box .option .radio{
+    display: none;
+}
+#strip_save{
+    margin-top: 380px;
+    position: relative;
+}
+.color_selection{
+    margin-top: -360px;
+    opacity: 0.25;
+    
+    /*border: 3px solid #3FA5E0;*/
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .4);
+    padding-top: 20px;
+    padding-bottom: 5px;
+    border-radius: 15px;
+    padding-right: 5px;
+    padding-left: 5px;
+}
+#color_indicator{
+    background: rgb(196, 196, 196);
+    height: 20px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+#color-picker{
+    display: inline-block;
+    vertical-align: middle;  
+    margin-top: -10px; 
+    z-index:1;
+    pointer-events: none;
+}
+.preset_buttons{
+    list-style-type:none;
+    float: right;
+    margin-top: 115px;    
+    margin-right: 10px;
+    width: 200px;
+}
+
+.preset_settings{
+    
+    padding: 270px 100px ;
+    display: inline-block;
+    width: 200px;
+    /*border: 1px solid #3498db;*/
+    border-radius: 3px;
+    transition: all 0.3s;
+    text-align: center;
+    height: 0px;
+    visibility: visible;
+    opacity: 0;
+    font-family: 'Trebuchet MS';
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .4);
+    position: absolute;
+    right: 250px;
+    background: white;
+    z-index: 1;
+}
+.preset_name{
+    margin-top: -250px;
+}
+.preset_name input{
+    font-size: 30px;
+    font-size: 40px;
+    width: 300px;
+    text-align: center;
+    margin-left: -50px;
+    border-width: 0px;
+    border-radius: 3px;
+    /*border-top:1px solid #0c0c0a;
+    border-bottom: 1px solid#0c0c0a;*/
+}
+#preset_save{
+    margin-top: 50px;
+    position: relative;
+    cursor: pointer;
+    z-index: 2;
+    float: inline-block;
+}
+
+.preset_repeat{
+    font-size: 30px;
+    margin-top: 20px;
+}
+#preset_repeat_checkbox{
+    scale: 2;
+    margin-left: 20px;
+}
+.preset_time{
+    font-size: 20px;
+    margin-top: -20px;
+    position: relative;
+    z-index: 5;
+}
+.preset_time input{
+    margin-top: 20px;
+    background: #104A6B;
+    border: none;
+    color: white;
+    /*border-bottom: 4px solid #C9D6DA;*/
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-bottom: .625em;
+    margin-top: -10px;
+    outline-offset: 3px;
+    
+    width: 100px;
+    text-align: center;
+   
+    font-family: 'Trebuchet MS';
+    font-size: 80%;
+    scale: 1.2;
+    cursor: pointer;
+}
+
+.preset_days input{
+    outline: none;
+    border: none;
+    width:max-content;
+}
+.preset_days{
+    color: white;
+    scale: 1.2;
+    margin-top: -150px;
+    z-index: 1;
+    position: relative;
+}
+.preset_days .select_field{
+    position: relative;
+    z-index: 2;
+}
+.preset_days .select_field input{
+    cursor: pointer;
+    background: #104A6B;
+    width: 200px;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 160px;
+    color: white;
+    font-size: 100%;
+}
+
+.preset_days .select_days{
+    margin-left: 30px;
+}
+.preset_days .days{
+    width: 200px;
+    background: #104A6B;
+    border-radius: 8px;
+    opacity: 0;
+    transition: all 0.3s;
+    position: relative;
+    margin-top: 10px;
+    margin-bottom: -100px;
+}
+.preset_days .day{
+    display: block;
+    text-align: left;
+    margin-left: 50px;
+    overflow: hidden;
+    
+}
+
+ .preset_days .extended{
+    opacity: 1;
+}
+.overlapping{
+    z-index: 3;
+}
+.preset_repeat_settings{
+    opacity: 0.25;
+    transition: 0.2s;
+}
+#delete_preset{
+    width: 75px;
+    padding: 20px;
+    margin-top: 50px;
+    position: absolute;
+    margin-left: 12px;
+    background: white;
+    transition: 0.2s;
+    font-family: 'manrope';
+    font-weight: 200;
+    border-radius: 3px;
+    color:#3FA5E0;
+    border: 3px solid #3FA5E0;
+}
+#delete_preset:hover{
+    background: #dbdbdbd7;
+}
+/*
+@media (max-width: 910px){
+    
+    .strip_settings{
+        margin-left: calc((100% - 910px)/2)
+        left: calc((100% -410px)/2)
+    }
+    .preset_settings{
+        margin-right: calc((100% - 910px)/2)
+    }
+}
+*/
+
+
+@media (orientation: portrait){
+
+    .button_field .btn{
+        width: 150%;
+        padding: 30% 40px;
+        font-size: 300%;
+        font-weight: 500;
+    }
+
+    .preset_buttons .btn{
+        width: 150%;
+        padding: 28.5% 40px;
+        font-size: 300%;
+        font-weight: 500;
+    }
+    .preset_buttons{
+        margin-right: 110px;
+    }
+
+    .strip_settings{
+        opacity: 0;
+        margin-left: calc((100% - 1200px)/2);
+        width:500px;
+        font-size: 300%;
+        height: 600px;
+        position: absolute;
+        visibility: hidden;
+    }
+
+    .preset_settings{
+        margin-right: calc((100% - 1100px)/2);
+        width: 400px;
+        opacity: 0;
+        height: 600px;
+        z-index: 3;
+        position: absolute;
+        visibility: hidden;
+    }
+    .strip_name{
+        font-size: 200%;
+    }
+    #strip_save{
+        margin-top: 850px;
+        font-weight: 500;
+    }
+    .color_selection{
+        margin-top: -800px;
+        height: 500px;
+    }
+    .selected{
+        width: 500px;
+        margin-top: -300px;
+    }
+    .preset_days{
+        margin-top: -150px;
+        font-size: 300%;
+        position: relative;
+    }
+    .preset_days .select_field input{
+        width: 400px;
+    }
+    .preset_days .days{
+        width: 400px;
+        position: relative;
+        z-index: 0;
+    }
+    .preset_days .extended{
+        z-index: 2;
+    }
+    .preset_days .days input{
+        transform: scale(3);
+        margin-right: 20px;
+        margin-top: 20px;
+        margin-left: -30px;
+        position: absolute;
+        padding-right: 10px;
+    }
+    .preset_days .day{
+        padding-left: 50px;
+    }
+    .strip_settings .option-container{
+        opacity: 1;
+        order: 2;
+        z-index: 2;
+        width: 550px;
+    }
+    .select-box .option-container.active{
+        max-height: 400px;
+    }
+    #color_indicator{
+        width: 400px;
+        margin-left: 45px;
+    }
+
+    .preset_name input{
+        font-size: 400%;
+        margin-left: 10px;
+    }
+
+    .preset_time{
+        margin-top: 20px;
+    }
+    .preset_time input{
+        font-size: 300%;
+        width: 300px;
+        margin-top: -50px;
+        text-align: center;
+    }
+    .preset_time p{
+        font-size: 300%;
+        margin-top: -10px;
+    }
+    .preset_repeat{
+        font-size: 300%;
+        margin-top: 20px;
+    }
+    .preste_repeat_text{
+        margin-top: 10px;
+    }
+    #preset_repeat_checkbox{
+        transform: scale(3);
+        margin-left: 30px;
+        margin-top: 20px;
+        position: absolute;
+    }
+    #preset_save{
+        position: relative;
+        z-index: 1;
+        font-size: 300%;
+        margin-top: 20px;
+        font-weight: 500;
+    }
+    #delete_preset{
+        font-size: 250%;
+        font-weight: 500;
+        margin-top: 22.5px;
+    }
+    .overlapping{
+        z-index: 5;
+    }
+    .button_splitter{
+        width: 150%;
+    }
+}
+

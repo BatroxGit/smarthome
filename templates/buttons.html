@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>buttons</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='buttons_style.css') }}">
+        <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script src="{{ url_for('static', filename='require.js') }}"></script>
+    </head>
+    <body>
+        <div class="headline">
+            <hr>
+            <span>Schlaues Heim</span>
+            <hr>
+        </div>
+        <div class="button_field">
+            <ul >
+                
+                <li><input type="button" name="lamp_1" value="LAMP 1" onpointerdown="startTimer(this.name, true)" onpointerup="stopTimer(this.name, 'switch')" class="btn"></input></li>
+                <li><input type="button" name="lamp_2" value="LAMP 2" onpointerdown="startTimer(this.name, true)" onpointerup="stopTimer(this.name, 'switch')" class="btn"></input></li>
+                <li><input type="button" name="lamp_3" value="LAMP 3" onpointerdown="startTimer(this.name, true)" onpointerup="stopTimer(this.name, 'switch')" class="btn"></input></li>
+                <li><hr class="button_splitter"></td></tr>
+                <li><input type="button" name="strip_1" value="STRIP 1" onpointerdown="startTimer(this.name, false)" onpointerup="stopTimer(this.name, 'switch')" class="btn"></input></li>
+                <li><input type="button" name="strip_2" value="STRIP 2" onpointerdown="startTimer(this.name, false)" onpointerup="stopTimer(this.name, 'switch')" class="btn"></input></li>
+            </ul>
+        </div>
+        
+        <div class="strip_settings">
+            <div class="strip_name">STRIP X</div>
+            
+            <input id="strip_save" type="button" value="SAVE" class="btn" onclick="saveStrip()"></input>
+            <div class="color_selection">
+                <div class="color-picker"></div>
+                <div id="color-picker"></div>
+                <div id="color_indicator" class="color-picker"></div>
+            </div>
+            
+            <div class="select-box">
+                
+                <div class="option-container">
+                    <div class="option">
+                        <input type="radio" class="radio" id="color" name="category">
+                        <label for="color">color</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" class="radio" id="animation1" name="category">
+                        <label for="animation1">animation_1</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" class="radio" id="animation2" name="category">
+                        <label for="animation2">animation_2</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" class="radio" id="animation3" name="category">
+                        <label for="animation3">animation_3</label>
+                    </div>
+                </div>
+                <div class="selected">
+                    Select
+                </div>
+            </div>
+        </div>
+        
+        
+        <ul class="preset_buttons">
+            <li><input type="button" name="create_preset" value="CREATE" class="btn" onclick="createPreset()" ></input></li>
+            <!--<li><input type="button" name="preset_1" value="PRESET X" class="btn" onmousedown="startTimer(this.name, false)" onmouseup="stopTimer(this.name)"></input></li>-->
+        </ul>
+        <div class="preset_settings">
+            <div class="preset_name"><input type="text" > </input></div>
+            <div class="preset_repeat">Repeat:<input id="preset_repeat_checkbox" type="checkbox" onclick="presetSetRepeat()"> </div>
+            <hr>
+            <div class="preset_repeat_settings">
+                <div class="preset_time">
+                    <p>From:</p><input id="preset_time_from" type="time" disabled> <br>
+                    <p>To: </p>  <input id="preset_time_to" type="time" disabled> 
+                </div>
+                
+                <div class="preset_days">
+                    <div class="select_field">
+                        <input type="button" value="Select days" onclick="toggleDaySelection()" class="day_selection" disabled>
+                    </div>
+                    <div class="days">
+                        <label for="MO" class="day"><input type="checkbox" id="MO">MONDAY</label>
+                        <label for="DI" class="day"><input type="checkbox" id="DI">TUESDAY</label>
+                        <label for="MI" class="day"><input type="checkbox" id="MI">WEDNESDAY</label>
+                        <label for="DO" class="day"><input type="checkbox" id="DO">THURSDAY</label>
+                        <label for="FR" class="day"><input type="checkbox" id="FR">FRIDAY</label>
+                        <label for="SA" class="day"><input type="checkbox" id="SA">SATURDAY</label>
+                        <label for="SO" class="day"><input type="checkbox" id="SO">SUNDAY</label>
+                    </div>
+                </div>
+            </div>
+            <input id="preset_save" type="button" value="SAVE" class="btn" onclick="savePreset()"></input>
+            <input id="delete_preset" type="button" value="X"  onpointerdown="startTimer(this.id, false)" onpointerup="stopTimer(this.id, 'closePreset')"></input>
+        </div>
+
+        <script>
+            lastDataStorageRespone = getFullDataStorage();
+            var ownChange = false;
+            function checkSyncUpdate(){
+                request = new XMLHttpRequest;
+                request.open('GET', '/dataStorageString', false);
+                request.onload = function() {
+                    if (request.status >= 200 && request.status < 400 && request.readyState == 4){
+                        if((request.responseText != lastDataStorageRespone)&& (ownChange == false) ){
+                            var data = JSON.parse(getFullDataStorage());
+                            buttonSwitchInit(data);
+                            checkPresetButtonColor(data);
+                        }
+                        ownChange = false;
+                        lastDataStorageRespone = request.responseText;
+                    } 
+                };
+                request.send();
+                
+            }
+            
+            //checkSyncUpdate();
+            //setInterval(test, 5000);
+
+            var buttonField = document.getElementsByClassName("button_field")[0];
+            var stripSettings = document.getElementsByClassName("strip_settings")[0];
+            var presetSettings = document.getElementsByClassName("preset_settings")[0];
+            var colorSelection = document.getElementsByClassName("color_selection")[0];
+            var latestStripSelection = ["default", "default"];//[stripname, animation/color value]
+            var latestPresetName = "default";
+            var currentDataStorage = JSON.parse(getFullDataStorage());
+            presetButtonInit(currentDataStorage);
+            buttonSwitchInit(currentDataStorage);
+            
+            
+            //pythonSetItem("presetNum", "0");
+            //pythonSetItem("preset_names", "");
+            //pythonSetItem("strip_1", "0_#fff")
+            //pythonSetItem("strip_2", "0_#fff")
+            //pythonSetItem("lamp_1", "0")
+            //pythonSetItem("lamp_2", "0")
+            //pythonSetItem("lamp_3", "0")
+            
+            //pythonSetItem("test", '{lamp_1:1, lamp_2:2}')
+
+            function buttonSwitchInit(dataStorage){
+                for(i=1; i<4; i++){
+                    buttonName = "lamp_"+i.toString()
+                    var button = document.getElementsByName(buttonName)[0];
+
+                    switched = dataStorage[buttonName];
+                    if((switched == "0") && (!button.classList.contains("btn_switched"))){
+                        button.classList.add("btn_switched");
+                    }
+                    else if (switched == "1"){
+                        button.classList.remove("btn_switched");
+                    }
+                }
+
+                for(i=1; i<3; i++){
+                    buttonName = "strip_"+i.toString()
+                    var button = document.getElementsByName(buttonName)[0];
+                    switched = dataStorage[buttonName].split("_")[0];
+                    if((switched == "0") && (!button.classList.contains("btn_switched"))){
+                        button.classList.add("btn_switched");
+                    }
+                    else if (switched == "1"){
+                        button.classList.remove("btn_switched");
+                    }
+                }
+            }
+
+
+            let colorIndicator = document.getElementById("color_indicator");
+            const colorPicker = new iro.ColorPicker("#color-picker", {
+                width:400, color: "#fff"
+            });
+            function checkResizeColorPicker(portrait){
+                if(portrait.matches){
+                    colorPicker.resize(400);
+                }
+                else{
+                    colorPicker.resize(180);
+                }
+            }
+            var portrait = window.matchMedia("(orientation: portrait)");
+            checkResizeColorPicker(portrait);
+            portrait.addListener(checkResizeColorPicker);
+            
+
+            var holding = false;
+            activeHoldTimeoutId = null;
+            var openedSettings = false; //assumption: only 1 button can be hold at a time
+
+            
+            const selected = document.querySelector(".selected");
+            const optionContainer = document.querySelector(".option-container");
+            const optionList = document.querySelectorAll(".option");
+
+
+            selected.addEventListener("click", ()=>{
+                optionContainer.classList.toggle("active");
+            })
+            optionList.forEach( o => {
+                o.addEventListener("click", () => {
+                    var selection = o.querySelector("input").id;
+                    if(selection == "color"){
+                        latestStripSelection[1] = "#fff";
+                    }
+                    else{
+                        latestStripSelection[1] = selection;
+                    }
+                    selected.innerHTML = o.querySelector("label").innerHTML;
+                    checkColorListen();
+                    optionContainer.classList.remove("active");
+                })
+            })
+
+
+            function startTimer(name, clickOnly){
+                holding = true;
+                if (clickOnly == false){
+                    activeHoldTimeoutId = setTimeout(function(){
+                        if(holding ){
+                            if (splitName(name)[0] == "preset"){
+                                openPresetSettings(name);
+                            }
+                            else if (splitName(name)[0] == "strip"){
+                                openStripSettings(name);
+                            }else if (name == "delete_preset"){
+                                deletePreset();
+                            }
+                        }
+                    }, 1000);
+                }
+            }
+            function stopTimer(name, action){
+                clearTimeout(activeHoldTimeoutId);
+                if(action == "switch"){
+                    postSwitch(name);
+                    
+                }else if (action == "closePreset"){
+                    hidePresetSettings();
+                }
+                
+            }
+
+            function splitName(string){
+                return string.split("_")
+            }
+            function postSwitch(name){
+                if(openedSettings == false){
+                    holding = false;
+                    //postMsg(name, "switch");
+                    switchInData(name);
+                    button = document.getElementsByName(name)[0];
+                    button.classList.toggle("btn_switched");
+                }
+            }
+
+            //storage logic
+            function switchInData(name){
+                var item = pythonGetItem(name);
+                var type = getButtonType(name);
+                if(type == "strip"){
+                    values = item.split("_");
+                    pythonSetItem(name, getSwitchedState(+values[0])+"_"+values[1]);
+                }
+                else if(type == "lamp") {
+                    pythonSetItem(name, getSwitchedState(item));
+                }
+                else if(type == "preset"){
+                    var currentSettings = JSON.parse(pythonGetItem(name));
+                    currentSettings.switch = getSwitchedState(currentSettings.switch);
+                    pythonSetItem(name, JSON.stringify(currentSettings));
+                }
+                console.log(name+" set to: "+pythonGetItem(name));
+            }
+            function getSwitchedState(currentState){
+                console.log(currentState)
+                if(currentState == "1"){
+                    return "0";
+                }
+                else{
+                    return "1";
+                }
+            }
+            function getButtonType(name){
+                return name.split("_")[0];
+            }
+            
+
+
+
+            function postMsg(key, message){
+                var formData = new FormData();
+                formData.append(key, message);
+                var request = new XMLHttpRequest();
+                request.open("POST", "/");
+                request.send(formData)
+            }
+
+            function openStripSettings(name){
+                if(openedSettings == false){
+                    openedSettings = true;
+                    loadStripSettings(name);
+                    document.getElementsByClassName("strip_name")[0].innerHTML = name;
+                    stripSettings.style.visibility = "visible";
+                    stripSettings.style.opacity = "1";
+                    stripSettings.style.zIndex = 3;
+                    //latestStripSelection[0] = name;
+                }
+            }
+            function loadStripSettings(name){
+                var values = pythonGetItem(name).split("_");
+                latestStripSelection[0] = name;
+                latestStripSelection[1] = values[1];
+                checkColorListen();
+                if(values[1].charAt(0) == "#"){
+                    selected.innerHTML = "color";
+                    colorPicker.color.hexString = values[1];
+                    colorIndicator.style.background = values[1];
+                }
+                else{
+                    selected.innerHTML = values[1];
+                    colorIndicator.style.background = "#fff";
+                    colorPicker.color.hexString = "#fff";
+                }
+            }
+
+            function openPresetSettings(name){
+                if(openedSettings == false){
+                    openedSettings = true;
+                    loadPreset(name);
+                    latestPresetName = name;
+                    
+                    presetSettings.style.visibility = "visible";
+                    presetSettings.style.opacity = "1";
+                }
+            }
+            function loadPreset(name){
+                settings = JSON.parse(pythonGetItem(name));
+                var repeat = settings.repeat == "1";
+                document.querySelector(".preset_name input").value = settings.customName;
+                document.getElementById("preset_repeat_checkbox").checked = repeat;
+                presetSetRepeat();
+                
+                document.getElementById("preset_time_from").value = settings.timeFrom.split("_")[0] +":"+ settings.timeFrom.split("_")[1];
+                document.getElementById("preset_time_to").value = settings.timeTo.split("_")[0] +":"+ settings.timeTo.split("_")[1];
+                var checkedDays = settings.days.split("_"); 
+                var days = document.querySelectorAll(".days input");
+                for(var i=0; i<days.length; i++){
+                    days[i].checked = checkedDays[i]=="1";
+                }
+                
+            }
+            
+            function saveStrip(){
+                stripSettings.style.visibility = "hidden";
+                stripSettings.style.opacity = "0";
+                openedSettings = false;
+                //postMsg(latestStripSelection[0], latestStripSelection[1]);
+
+                var switchValue = pythonGetItem(latestStripSelection[0]).split("_")[0]
+                console.log("saving: "+latestStripSelection[0], switchValue+"_"+latestStripSelection[1]);
+                pythonSetItem(latestStripSelection[0], switchValue+"_"+latestStripSelection[1]);
+            }
+
+
+            function savePreset(){
+                hidePresetSettings();
+                var customName = document.querySelector(".preset_name input").value;
+                var repeat = document.getElementById("preset_repeat_checkbox").checked;
+                if(repeat){repeat="1";}else{repeat="0";}
+                var from = document.getElementById("preset_time_from").value.split(":")[0] +"_"+document.getElementById("preset_time_from").value.split(":")[1];
+                var to = document.getElementById("preset_time_to").value.split(":")[0] +"_"+document.getElementById("preset_time_to").value.split(":")[1];
+                var checkedDays = "";
+                var days = document.querySelectorAll(".days input");
+                days.forEach(function(day){
+                    if(day.checked){checkedDays+="1_";}
+                    else{checkedDays+="0_";}
+                } );
+                checkedDays = checkedDays.substr(0, checkedDays.length - 1);
+                var currentSwitch = JSON.parse(pythonGetItem(latestPresetName)).switch;
+
+                var settings = {
+                    switch: currentSwitch,
+                    customName:customName,
+                    lamp_1:pythonGetItem("lamp_1"),
+                    lamp_2:pythonGetItem("lamp_2"),
+                    lamp_3:pythonGetItem("lamp_3"),
+                    strip_1:pythonGetItem("strip_1"),
+                    strip_2:pythonGetItem("strip_2"),
+                    repeat:repeat,
+                    timeFrom:from,
+                    timeTo:to,
+                    days:checkedDays
+                }
+                
+                document.querySelector("#"+latestPresetName).value = customName;
+                //console.log("saving " +latestPresetName+ ": "+JSON.stringify(settings));
+                pythonSetItem(latestPresetName, JSON.stringify(settings));
+            }
+
+            
+            function toggleDaySelection(){
+                days = document.getElementsByClassName("days")[0];
+                days.classList.toggle("extended");
+                presetDays = document.getElementsByClassName("preset_days")[0];
+                delay = 0;
+                if(presetDays.classList.contains("overlapping")){
+                    delay = 500;
+                }
+                setTimeout(function(){
+                    presetDays.classList.toggle("overlapping");
+                }, delay)
+                
+            }
+            
+            
+            
+            //color picker
+            
+            function checkColorListen()
+            {
+                if(latestStripSelection[1].charAt(0) == "#")
+                {
+                    colorPicker.on("color:change", function (color){
+                        colorIndicator.style.background = color.hexString;
+                        latestStripSelection[1] = color.hexString;
+                        postMsg("realTimeColorChange", latestStripSelection[0]+ ":" + "1_" + color.hexString)
+                    });
+                    colorSelection.style.opacity = 1;
+                    $("#color-picker").css("pointer-events", "auto");
+                }
+                else{
+                    colorPicker.off("color:change");
+                    colorSelection.style.opacity = 0.25;
+                    $("#color-picker").css("pointer-events", "none");
+                }
+                
+            }
+            function setRepeatSettingsClickable(clickable){
+                
+                var repeatSettings = document.querySelectorAll(".preset_repeat_settings input");
+                repeatSettings.forEach(element => element.disabled = !clickable);
+            }
+            function presetSetRepeat(){
+                var presetRepeatSettings = document.getElementsByClassName("preset_repeat_settings")[0];
+                var presetRepeatCheckbox = document.getElementById("preset_repeat_checkbox");
+                setRepeatSettingsClickable(presetRepeatCheckbox.checked);
+
+                if(document.getElementsByClassName("overlapping")[0] != undefined){
+                    toggleDaySelection();
+                }
+                if(presetRepeatCheckbox.checked){
+                    presetRepeatSettings.style.opacity = 1;
+                }
+                else{
+                    presetRepeatSettings.style.opacity = 0.25;
+                }
+            }
+            //create preset buttons
+            function makePresetButton(name, id, value, switched){
+                const newListItem = document.createElement("li");
+                const newPresetButton = document.createElement("input");
+                newPresetButton.type = "button";
+                newPresetButton.classList.add("btn");
+                if(switched == false){
+                    newPresetButton.classList.add("btn_switched")
+                }
+                newPresetButton.name = name
+                newPresetButton.id = id;
+                newPresetButton.value = value;
+                newPresetButton.onpointerdown = function(){startTimer(this.name, false);};
+                newPresetButton.onpointerup = function(){stopTimer(this.name, "switch");};
+                newListItem.appendChild(newPresetButton);
+                
+
+                const presetButtonList = document.getElementsByClassName("preset_buttons")[0];
+                presetButtonList.appendChild(newListItem);
+            }
+            function createPreset(){
+                
+                raisePresetNum(1);
+                var number = pythonGetItem("presetNum");
+                addPresetToDatabase(number);
+                var name = "preset_"+number;
+                var id = "preset_"+number;
+                var value = "PRESET";
+                makePresetButton(name, id, value, true);
+                
+                
+            }
+            function raisePresetNum(value){
+                var test = pythonGetItem("presetNum");
+                var currentPresetNum = parseInt(test);
+                currentPresetNum += value;
+                pythonSetItem("presetNum", currentPresetNum.toString())
+            }
+            function addPresetToDatabase(number){
+                var presetSettings = {
+                    switch:0,
+                    customName : "preset_"+number,
+                    lamp_1:pythonGetItem("lamp_1"),
+                    lamp_2:pythonGetItem("lamp_2"),
+                    lamp_3:pythonGetItem("lamp_3"),
+                    strip_1:pythonGetItem("strip_1"),
+                    strip_2:pythonGetItem("strip_2"),
+                    repeat:"0",
+                    timeFrom:"00_00",
+                    timeTo:"00_00",
+                    days:"0_0_0_0_0_0_0"
+                }
+
+                console.log(JSON.stringify(presetSettings))
+                pythonSetItem("preset_"+number, JSON.stringify(presetSettings));
+                var presetList = pythonGetItem("preset_names");
+                if(presetList == ""){
+                    presetList += "preset_"+number;
+                }
+                else{
+                    presetList += ":preset_"+number;
+                }
+                pythonSetItem("preset_names", presetList);
+                console.log("added preset_"+number+ " : "+JSON.stringify(presetSettings));
+            }
+            function deletePreset(){
+                hidePresetSettings();
+                var name = latestPresetName;
+                localStorage.removeItem(name);
+                document.getElementById(name).remove();
+
+                var presetList = pythonGetItem("preset_names");
+                presetList = presetList.split(":");
+                var index = presetList.indexOf(name);
+                if(index > -1){
+                    presetList.splice(index, 1);
+                }
+                pythonSetItem("preset_names", presetList.join(":"));
+            }
+            function hidePresetSettings(){
+                presetSettings.style.visibility = "hidden";
+                presetSettings.style.opacity = "0";
+                openedSettings = false;
+            }
+
+            var testPreset = {
+                switch: 0,
+                customName: "default",
+                lamp1:"1",
+                lamp2:"0",
+                lamp3:"0",
+                strip5:"1_#fff",
+                strip5:"0_animation1",
+                repeat:"0",
+                timeFrom:"10_32",
+                timeTo:"10_45",
+                days:"1_1_1_1_1_0_0"
+            };
+
+            function presetButtonInit(){
+                var presetList = pythonGetItem("preset_names").split(":");
+                if(presetList[0] != ""){
+                    presetList.forEach(function(presetName){
+                        var settings = JSON.parse(pythonGetItem(presetName));
+                        switched = settings["switch"] == 1;
+                        var presetButton = document.getElementsByName(presetName)[0];
+                        if(presetButton == undefined){
+                            makePresetButton(presetName, presetName, settings.customName, switched);
+                        }
+                        
+                    })
+                }
+                
+            }
+            function checkPresetButtonColor(dataStorage){
+                var presetList = dataStorage["preset_names"].split(":");
+                if(presetList[0] != ""){
+                    presetList.forEach(function(presetName){
+                        var settings = JSON.parse(pythonGetItem(presetName));
+                        switched = settings["switch"] == 1;
+                        var presetButton = document.getElementsByName(presetName)[0];
+                        if(presetButton != undefined){
+                            switched = settings["switch"];
+                            if((switched == "0") && (!presetButton.classList.contains("btn_switched"))){
+                                presetButton.classList.add("btn_switched");
+                            }
+                            else if (switched == "1"){
+                                presetButton.classList.remove("btn_switched");
+                            }
+                        }
+                        
+                    })
+                }
+            }
+
+            function pythonSetItem(key, value){
+                ownChange = true;
+                postMsg("setJson", key+":"+value)
+            }
+            
+            function getFullDataStorage(){
+                request = new XMLHttpRequest;
+                request.open('GET', '/dataStorageString', false);
+                
+                var data = "default";
+                request.onload = function() {
+                    if (request.status >= 200 && request.status < 400 && request.readyState == 4){
+                        // Success!
+                        data =request.responseText;
+                    } 
+                };
+                request.send();
+                return data;
+            }
+            function pythonGetItem(key){
+                
+                data = JSON.parse(getFullDataStorage());
+                return data[key].replace(/'/g, '"');
+            }
+            
+        </script>
+        <div class="presets"></div>
+    </body>
+</html>
