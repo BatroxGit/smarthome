@@ -116,7 +116,7 @@
             }
             
             checkSyncUpdate();
-            setInterval(checkSyncUpdate, 1000);
+            //setInterval(checkSyncUpdate, 1000);
 
             var buttonField = document.getElementsByClassName("button_field")[0];
             var stripSettings = document.getElementsByClassName("strip_settings")[0];
@@ -163,6 +163,81 @@
                     else if (switched == "1"){
                         button.classList.remove("btn_switched");
                     }
+                }
+            }
+
+            function buttonSwitchPreset(preset){
+                var switched = preset.switch;
+                
+                if(preset.lamp_1 == "1"){
+                    var button = document.getElementsByName("lamp_1")[0];
+                    if(switched == "0" ){
+                        button.classList.add("btn_switched");
+                    }
+                    else{
+                        button.classList.remove("btn_switched");
+                    }
+                }
+                else{
+                    var button = document.getElementsByName("lamp_1")[0];
+                    button.classList.add("btn_switched");
+                }
+                //--
+                if(preset.lamp_2 == "1"){
+                    var button = document.getElementsByName("lamp_2")[0];
+                    if(switched == "0" ){
+                        button.classList.add("btn_switched");
+                    }
+                    else{
+                        button.classList.remove("btn_switched");
+                    }
+                }
+                else{
+                    var button = document.getElementsByName("lamp_2")[0];
+                    button.classList.add("btn_switched");
+                }
+                //--
+                if(preset.lamp_3 == "1"){
+                    var button = document.getElementsByName("lamp_3")[0];
+                    if(switched == "0" ){
+                        button.classList.add("btn_switched");
+                    }
+                    else{
+                        button.classList.remove("btn_switched");
+                    }
+                }
+                else{
+                    var button = document.getElementsByName("lamp_3")[0];
+                    button.classList.add("btn_switched");
+                }
+                //
+                //
+                if(preset.strip_1.split("_")[0] == "1"){
+                    var button = document.getElementsByName("strip_1")[0];
+                    if(switched == "0" ){
+                        button.classList.add("btn_switched");
+                    }
+                    else{
+                        button.classList.remove("btn_switched");
+                    }
+                }
+                else{
+                    var button = document.getElementsByName("strip_1")[0];
+                    button.classList.add("btn_switched");
+                }
+                //--
+                if(preset.strip_2.split("_")[0] == "1"){
+                    var button = document.getElementsByName("strip_2")[0];
+                    if(switched == "0" ){
+                        button.classList.add("btn_switched");
+                    }
+                    else{
+                        button.classList.remove("btn_switched");
+                    }
+                }
+                else{
+                    var button = document.getElementsByName("strip_2")[0];
+                    button.classList.add("btn_switched");
                 }
             }
 
@@ -249,6 +324,7 @@
                     holding = false;
                     //postMsg(name, "switch");
                     switchInData(name);
+                    
                     button = document.getElementsByName(name)[0];
                     button.classList.toggle("btn_switched");
                 }
@@ -269,8 +345,9 @@
                     var currentSettings = JSON.parse(pythonGetItem(name));
                     currentSettings.switch = getSwitchedState(currentSettings.switch);
                     pythonSetItem(name, JSON.stringify(currentSettings));
+                    buttonSwitchPreset(currentSettings)
                 }
-                console.log(name+" set to: "+pythonGetItem(name));
+                
             }
             function getSwitchedState(currentState){
                 console.log(currentState)
@@ -483,7 +560,7 @@
                 addPresetToDatabase(number);
                 var name = "preset_"+number;
                 var id = "preset_"+number;
-                var value = "PRESET";
+                var value = name;
                 makePresetButton(name, id, value, true);
                 
                 
@@ -496,7 +573,7 @@
             }
             function addPresetToDatabase(number){
                 var presetSettings = {
-                    switch:0,
+                    switch:1,
                     customName : "preset_"+number,
                     lamp_1:pythonGetItem("lamp_1"),
                     lamp_2:pythonGetItem("lamp_2"),
@@ -533,6 +610,7 @@
                 if(index > -1){
                     presetList.splice(index, 1);
                 }
+                pythonSetItem("delete_preset", name)
                 pythonSetItem("preset_names", presetList.join(":"));
             }
             function hidePresetSettings(){
