@@ -26,7 +26,12 @@ void setup(void) {
   radio.openReadingPipe(1, pipe) ;        
   radio.enableDynamicPayloads() ;
   radio.powerUp() ;          
-  delay(2000);
+  delay(500);
+  redAll();
+  delay(1000);
+  blackAll();
+  delay(500);
+
 }
 
 
@@ -95,6 +100,13 @@ bool validMessage(String message){
       return true;
     }
     return false;
+}
+
+void redAll(){
+  for(int i=0; i<NUM_LEDS; i++){
+    leds[i] = CRGB::Red;
+  }
+  FastLED.show();
 }
 
 void blackAll(){

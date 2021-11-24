@@ -2,6 +2,10 @@ from flask import Flask, render_template, request
 import json
 import os
 import NRFSender
+import time
+import schedule
+import threading
+
 
 app= Flask(__name__)
 
@@ -30,21 +34,6 @@ def get_general_data():
     return None
 
 tempral_data_storage = get_general_data()
-
-def check_button():
-    print("received: ", request.form)
-    if request.form.get('button_1') != None:
-        print("1")
-    elif  request.form.get('button_2') != None:
-        print("2")
-    elif  request.form.get('button_3') != None:
-        print("3")
-    elif  request.form.get('button_4') != None:
-        print("4")
-    elif  request.form.get('button_5') != None:
-        print("5")
-    else:
-        print("no button")
 
 
 
@@ -128,7 +117,7 @@ def index():
     if request.method == 'POST':
         request_string = request.form.get('setJson')
         if request_string != None:
-            print(request_string)
+            #print(request_string)
             check_send_msg(request_string)
             set_json_2(request_string)
 
@@ -141,7 +130,26 @@ def index():
     return render_template("buttons.html")
 
 
+def test_thread_function():
+    while True:
+        print("test")
+        time.sleep(2)
+    
+
+def start_thread():
+    x = threading.Thread(target=test_thread_function, args=())
+    x.daemon = True
+    x.start()
 
 
 if __name__ == "__main__":
-    app.run( host="192.168.2.118", port="5000", debug=True)
+    try:
+        start_thread()  
+    except (KeyboardInterrupt, SystemExit):
+        cleanup_stop_thread()
+        sys.exit()
+    
+
+    app.run( host="192.168.2.118", port="5000", debug=True, threaded=True)
+
+    

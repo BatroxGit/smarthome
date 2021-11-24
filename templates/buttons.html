@@ -113,11 +113,10 @@
                     } 
                 };
                 request.send();
-                
             }
             
-            //checkSyncUpdate();
-            //setInterval(test, 5000);
+            checkSyncUpdate();
+            setInterval(checkSyncUpdate, 1000);
 
             var buttonField = document.getElementsByClassName("button_field")[0];
             var stripSettings = document.getElementsByClassName("strip_settings")[0];
