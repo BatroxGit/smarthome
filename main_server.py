@@ -100,7 +100,7 @@ def check_send_msg(request):
     elif device == "preset":
         pass
     
-    print("{} | {} | {}".format(device_id, pipe, msg))
+   # print("{} | {} | {}".format(device_id, pipe, msg))
     
     NRFSender.send_msg(str(msg), pipes[device_id])
 
@@ -273,14 +273,14 @@ if __name__ == "__main__":
             pass
     
         
-    if True:
+    if False:
         try:
             start_thread()  
         except (KeyboardInterrupt, SystemExit):
             sys.exit()
         
 
-    app.run( host="192.168.2.118", port="5000", threaded=True)
+    app.run( host="192.168.2.118", port="5000", threaded=False)
     
 
     
