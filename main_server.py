@@ -273,7 +273,7 @@ if __name__ == "__main__":
             pass
     
         
-    if False:
+    if True:
         try:
             start_thread()  
         except (KeyboardInterrupt, SystemExit):
