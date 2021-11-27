@@ -4,7 +4,7 @@
 #include<string.h>
 #include <FastLED.h>
 
-#define NUM_LEDS 36
+#define NUM_LEDS 34
 #define DATA_PIN 2
 CRGB leds[NUM_LEDS];
 char currentAnimation = 'X';
