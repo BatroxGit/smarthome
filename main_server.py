@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+import requests
 import json
 import os
 import NRFSender
@@ -263,6 +264,24 @@ def start_thread():
     x.start()
 
 
+def internet_connected():
+    url = "https://www.google.com"
+    timeout = 5
+
+    try:
+        request = requests.get(url, timeout=timeout)
+        return True
+    except (requests.ConnectionError, requests.Timeout) as exception:
+        return False
+
+
+def run_flask():
+    if(internet_connected()):
+        app.run( host="192.168.2.118", port="5000", threaded=False)
+    else:
+        time.sleep(60)
+        run_flask()
+
 if __name__ == "__main__":
     preset_names = tempral_data_storage["preset_names"].split(":")
     for preset_name in preset_names:
@@ -279,8 +298,7 @@ if __name__ == "__main__":
         except (KeyboardInterrupt, SystemExit):
             sys.exit()
         
-
-    app.run( host="192.168.2.118", port="5000", threaded=False)
+    run_flask()
     
 
     
