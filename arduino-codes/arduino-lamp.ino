@@ -1,10 +1,11 @@
 #include<SPI.h>                 
 #include <Wire.h>                        
 #include<RF24.h>                 
-
+const int RELAY_PIN = 3;
 
 RF24 radio(9, 10) ;     
 void setup(void) {
+  pinMode(RELAY_PIN, OUTPUT);
   while (!Serial) ;
   Serial.begin(9600) ;     
   Serial.println("Starting.. Setting Up.. Radio on..") ; 
@@ -29,7 +30,9 @@ void loop(void) {
     String stringMessage(receivedMessage) ;   
     //delay(1000);
     if(validMessage(receivedMessage)){
-      Serial.println("set lamp to " + receivedMessage[2]);
+      char newLampStatus = receivedMessage[2];
+      Serial.println("set lamp to " + newLampStatus);   
+      setLampRelay(newLampStatus);
     }
     
     Serial.println("-----");
@@ -42,4 +45,16 @@ bool validMessage(String message){
       return true;
     }
     return false;
+}
+
+void setLampRelay(char status)
+{
+  if(status == '1')
+  {
+    digitalWrite(RELAY_PIN, HIGH);
+  }
+  else if(status == '0')
+  {
+    digitalWrite(RELAY_PIN, LOW);
+  }
 }
