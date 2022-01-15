@@ -2,6 +2,10 @@
 #include <Wire.h>                        
 #include<RF24.h>                 
 const int RELAY_PIN = 3;
+const int BUTTON_PIN = 2;
+
+bool button_clicked = false;
+char current_lamp_status = '0';
 
 RF24 radio(9, 10) ;     
 void setup(void) {
@@ -38,6 +42,16 @@ void loop(void) {
     Serial.println("-----");
   }
   //delay(10);
+  if(digitalRead(BUTTON_PIN) == HIGH && !button_clicked)
+  {
+    button_clicked = true;
+    toggleLamp();
+    
+  }
+  else if(digitalRead(BUTTON_PIN) == LOW && button_clicked == true)
+  {
+    button_clicked = false;
+  }
 }
 
 bool validMessage(String message){
@@ -47,14 +61,27 @@ bool validMessage(String message){
     return false;
 }
 
-void setLampRelay(char status)
+void setLampRelay(char newStatus)
 {
-  if(status == '1')
+  current_lamp_status = newStatus;
+  if(newStatus == '1')
   {
     digitalWrite(RELAY_PIN, HIGH);
   }
-  else if(status == '0')
+  else if(newStatus == '0')
   {
     digitalWrite(RELAY_PIN, LOW);
+  }
+}
+
+void toggleLamp()
+{
+  if(current_lamp_status == '0')
+  {
+    setLampRelay('1');
+  }
+  else if(current_lamp_status == '1')
+  {
+    setLampRelay('0');
   }
 }
